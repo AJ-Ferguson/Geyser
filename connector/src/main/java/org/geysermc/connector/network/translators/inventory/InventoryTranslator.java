@@ -798,6 +798,7 @@ public abstract class InventoryTranslator {
         final int maxLoops = Math.min(64, timesCrafted);
         for (int loops = 0; loops < maxLoops; loops++) {
             boolean done = true;
+            boolean stuck = true;
             for (Int2ObjectMap.Entry<Int2IntMap> entry : ingredientMap.int2ObjectEntrySet()) {
                 Int2IntMap sources = entry.getValue();
                 System.out.println("Grid slot: " + entry.getIntKey());
@@ -810,6 +811,7 @@ public abstract class InventoryTranslator {
                 if (!plan.getItem(gridSlot).isEmpty())
                     continue;
 
+                stuck = false;
                 int sourceSlot;
                 if (loops == 0 && sources.containsKey(prioritySlot)) {
                     sourceSlot = prioritySlot;
@@ -825,12 +827,14 @@ public abstract class InventoryTranslator {
                 System.out.println(plan.getItem(1 + offset).getAmount() + " " + plan.getItem(2 + offset).getAmount() + " " + plan.getItem(3 + offset).getAmount());
             }
 
-            if (!done) {
+            if (done) {
+                System.out.println("Times looped: " + loops);
+                break;
+            } else if (!stuck) {
                 //TODO: sometimes the server does not agree on this slot?
                 plan.add(Click.LEFT_SHIFT, 0, true);
             } else {
-                System.out.println("Times looped: " + loops);
-                break;
+                return rejectRequest(request);
             }
         }
 
@@ -959,10 +963,8 @@ public abstract class InventoryTranslator {
     }
 
     public boolean checkNetId(GeyserSession session, Inventory inventory, StackRequestSlotInfoData slotInfoData) {
-        if (slotInfoData.getStackNetworkId() < 0)
+        if (slotInfoData.getStackNetworkId() < 0 || slotInfoData.getStackNetworkId() == 1)
             return true;
-//        if (slotInfoData.getContainer() == ContainerSlotType.CURSOR) //TODO: temporary
-//            return true;
 
         GeyserItemStack currentItem = isCursor(slotInfoData) ? session.getPlayerInventory().getCursor() : inventory.getItem(bedrockSlotToJava(slotInfoData));
         return currentItem.getNetId() == slotInfoData.getStackNetworkId();
