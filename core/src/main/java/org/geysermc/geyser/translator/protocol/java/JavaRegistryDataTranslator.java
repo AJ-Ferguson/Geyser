@@ -28,7 +28,9 @@ package org.geysermc.geyser.translator.protocol.java;
 import com.github.steveice10.mc.protocol.data.game.RegistryEntry;
 import com.github.steveice10.mc.protocol.packet.configuration.clientbound.ClientboundRegistryDataPacket;
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import org.geysermc.geyser.inventory.item.BannerPattern;
 import org.geysermc.geyser.level.JavaDimension;
 import org.geysermc.geyser.session.GeyserSession;
 import org.geysermc.geyser.text.TextDecoration;
@@ -68,6 +70,16 @@ public class JavaRegistryDataTranslator extends PacketTranslator<ClientboundRegi
 
         if (packet.getRegistry().equals("minecraft:worldgen/biome")) {
             BiomeTranslator.loadServerBiomes(session, packet.getEntries());
+        }
+
+        if (packet.getRegistry().equals("minecraft:banner_pattern")) {
+            List<RegistryEntry> entries = packet.getEntries();
+            Int2ObjectMap<BannerPattern> bannerTranslations = new Int2ObjectArrayMap<>(entries.size());
+            for (int i = 0; i < entries.size(); i++) {
+                BannerPattern bannerPattern = BannerPattern.getByJavaIdentifier(entries.get(i).getId());
+                bannerTranslations.put(i, bannerPattern);
+            }
+            session.setBannerTranslations(bannerTranslations);
         }
     }
 }

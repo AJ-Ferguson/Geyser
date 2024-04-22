@@ -130,6 +130,7 @@ import org.geysermc.geyser.impl.camera.CameraDefinitions;
 import org.geysermc.geyser.impl.camera.GeyserCameraData;
 import org.geysermc.geyser.inventory.Inventory;
 import org.geysermc.geyser.inventory.PlayerInventory;
+import org.geysermc.geyser.inventory.item.BannerPattern;
 import org.geysermc.geyser.inventory.recipe.GeyserRecipe;
 import org.geysermc.geyser.inventory.recipe.GeyserStonecutterData;
 import org.geysermc.geyser.item.Items;
@@ -268,6 +269,12 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
      */
     @Setter
     private int[] biomeTranslations = null;
+
+    /**
+     * Stores the map between Java and Bedrock banner pattern network IDs.
+     */
+    @Setter
+    private Int2ObjectMap<BannerPattern> bannerTranslations = null;
 
     /**
      * A map of Vector3i positions to Java entities.
