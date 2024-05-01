@@ -25,6 +25,7 @@
 
 package org.geysermc.geyser.inventory;
 
+import it.unimi.dsi.fastutil.Pair;
 import lombok.*;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -40,6 +41,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponen
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponents;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 @Data
 public class GeyserItemStack {
@@ -53,6 +55,11 @@ public class GeyserItemStack {
     @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
     @EqualsAndHashCode.Exclude
     private Item item;
+
+    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Exclude
+    // Hold a reference to the components object used as the key for the UUID
+    private DataComponents cachedComponents;
 
     private GeyserItemStack(int javaId, int amount, DataComponents components) {
         this(javaId, amount, components, 1);
@@ -153,7 +160,15 @@ public class GeyserItemStack {
         if (isEmpty()) {
             return ItemData.AIR;
         }
-        ItemData.Builder itemData = ItemTranslator.translateToBedrock(session, javaId, amount, components);
+
+        UUID uuid = null;
+        if (components != null) {
+            Pair<DataComponents, UUID> uuidPair = session.getItemUUIDCache().getUUID(components);
+            this.cachedComponents = uuidPair.key();
+            uuid = uuidPair.value();
+        }
+
+        ItemData.Builder itemData = ItemTranslator.translateToBedrock(session, javaId, amount, components, uuid);
         itemData.netId(getNetId());
         itemData.usingNetId(true);
         return itemData.build();

@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public final class ItemTranslator {
 
@@ -103,13 +104,13 @@ public final class ItemTranslator {
         return itemStack.getItemStack();
     }
 
-    public static ItemData.@NonNull Builder translateToBedrock(GeyserSession session, int javaId, int count, DataComponents components) {
+    public static ItemData.@NonNull Builder translateToBedrock(GeyserSession session, int javaId, int count, DataComponents components, UUID uuid) {
         ItemMapping bedrockItem = session.getItemMappings().getMapping(javaId);
         if (bedrockItem == ItemMapping.AIR) {
             session.getGeyser().getLogger().debug("ItemMapping returned air: " + javaId);
             return ItemData.builder();
         }
-        return translateToBedrock(session, Registries.JAVA_ITEMS.get().get(javaId), bedrockItem, count, components);
+        return translateToBedrock(session, Registries.JAVA_ITEMS.get().get(javaId), bedrockItem, count, components, uuid);
     }
 
     @NonNull
@@ -124,12 +125,17 @@ public final class ItemTranslator {
             return ItemData.AIR;
         }
         // Java item needs to be loaded separately. The mapping for tipped arrow would
-        return translateToBedrock(session, Registries.JAVA_ITEMS.get().get(stack.getId()), bedrockItem, stack.getAmount(), stack.getDataComponents())
+        return translateToBedrock(session, Registries.JAVA_ITEMS.get().get(stack.getId()), bedrockItem, stack.getAmount(), stack.getDataComponents(), null)
                 .build();
     }
 
-    private static ItemData.@NonNull Builder translateToBedrock(GeyserSession session, Item javaItem, ItemMapping bedrockItem, int count, @Nullable DataComponents components) {
+    private static ItemData.@NonNull Builder translateToBedrock(GeyserSession session, Item javaItem, ItemMapping bedrockItem, int count, @Nullable DataComponents components, @Nullable UUID uuid) {
         BedrockItemBuilder nbtBuilder = new BedrockItemBuilder();
+
+        if (uuid != null) {
+            nbtBuilder.putLong("GeyserUUIDMost", uuid.getMostSignificantBits());
+            nbtBuilder.putLong("GeyserUUIDLeast", uuid.getLeastSignificantBits());
+        }
 
         if (components != null) {
             javaItem.translateComponentsToBedrock(session, components, nbtBuilder);

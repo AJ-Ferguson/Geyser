@@ -194,6 +194,7 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
     private final EntityCache entityCache;
     private final EntityEffectCache effectCache;
     private final FormCache formCache;
+    private final ItemUUIDCache itemUUIDCache;
     private final LodestoneCache lodestoneCache;
     private final PistonCache pistonCache;
     private final PreferencesCache preferencesCache;
@@ -594,6 +595,7 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
         this.entityCache = new EntityCache(this);
         this.effectCache = new EntityEffectCache();
         this.formCache = new FormCache(this);
+        this.itemUUIDCache = new ItemUUIDCache();
         this.lodestoneCache = new LodestoneCache();
         this.pistonCache = new PistonCache(this);
         this.preferencesCache = new PreferencesCache(this);
