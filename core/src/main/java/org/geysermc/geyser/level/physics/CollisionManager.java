@@ -185,7 +185,7 @@ public class CollisionManager {
 
         Vector3d startingPos = playerBoundingBox.getBottomCenter();
         Vector3d movement = position.sub(startingPos);
-        Vector3d adjustedMovement = correctPlayerMovement(movement, false, teleported);
+        Vector3d adjustedMovement = correctPlayerMovement(movement, true, teleported); // TODO
         playerBoundingBox.translate(adjustedMovement.getX(), adjustedMovement.getY(), adjustedMovement.getZ());
         playerBoundingBox.translate(pistonCache.getPlayerMotion().getX(), pistonCache.getPlayerMotion().getY(), pistonCache.getPlayerMotion().getZ());
         // Correct player position
