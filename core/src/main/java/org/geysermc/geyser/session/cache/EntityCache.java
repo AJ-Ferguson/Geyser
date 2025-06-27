@@ -38,6 +38,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import lombok.Getter;
+import org.geysermc.geyser.entity.type.Collidable;
 import org.geysermc.geyser.entity.type.Entity;
 import org.geysermc.geyser.entity.type.Tickable;
 import org.geysermc.geyser.entity.type.player.PlayerEntity;
@@ -56,6 +57,7 @@ public class EntityCache {
      * A list of all entities that must be ticked.
      */
     private final List<Tickable> tickableEntities = new ObjectArrayList<>();
+    private final List<Collidable> collidableEntities = new ObjectArrayList<>();
     private final Int2LongMap entityIdTranslations = new Int2LongOpenHashMap();
     private final Map<UUID, PlayerEntity> playerEntities = new Object2ObjectOpenHashMap<>();
     private final Map<UUID, BossBar> bossBars = new Object2ObjectOpenHashMap<>();
@@ -79,6 +81,11 @@ public class EntityCache {
             if (entity instanceof Tickable) {
                 // Start ticking it
                 tickableEntities.add((Tickable) entity);
+            }
+
+            if (entity instanceof Collidable) {
+                // Entities that need to be checked for collision
+                collidableEntities.add((Collidable) entity);
             }
         }
     }
@@ -112,6 +119,10 @@ public class EntityCache {
 
         if (entity instanceof Tickable) {
             tickableEntities.remove(entity);
+        }
+
+        if (entity instanceof Collidable) {
+            collidableEntities.remove(entity);
         }
     }
 
@@ -218,6 +229,10 @@ public class EntityCache {
 
     public List<Tickable> getTickableEntities() {
         return tickableEntities;
+    }
+
+    public List<Collidable> getCollidableEntities() {
+        return collidableEntities;
     }
 
     public void removeAllBossBars() {

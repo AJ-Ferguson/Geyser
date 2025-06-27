@@ -150,7 +150,7 @@ public class VehicleComponent<T extends LivingEntity & ClientVehicle> {
 
     public Vector3d correctMovement(Vector3d movement) {
         return vehicle.getSession().getCollisionManager().correctMovement(
-            movement, boundingBox, vehicle.isOnGround(), this.stepHeight, true, vehicle.canWalkOnLava()
+            movement, boundingBox, vehicle.isOnGround(), this.stepHeight, true, vehicle
         );
     }
 
@@ -622,7 +622,7 @@ public class VehicleComponent<T extends LivingEntity & ClientVehicle> {
         // Check world border before blocks
         Vector3d correctedMovement = vehicle.getSession().getWorldBorder().correctMovement(boundingBox, motion.toDouble());
         correctedMovement = vehicle.getSession().getCollisionManager().correctMovement(
-            correctedMovement, boundingBox, vehicle.isOnGround(), this.stepHeight, true, vehicle.canWalkOnLava()
+            correctedMovement, boundingBox, vehicle.isOnGround(), this.stepHeight, true, vehicle
         );
 
         boundingBox.translate(correctedMovement);

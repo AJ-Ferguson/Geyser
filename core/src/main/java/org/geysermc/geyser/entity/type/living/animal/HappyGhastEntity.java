@@ -33,13 +33,17 @@ import org.cloudburstmc.math.vector.Vector3f;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.geysermc.geyser.entity.EntityDefinition;
+import org.geysermc.geyser.entity.type.Collidable;
 import org.geysermc.geyser.entity.type.Entity;
+import org.geysermc.geyser.entity.type.player.PlayerEntity;
 import org.geysermc.geyser.entity.type.player.SessionPlayerEntity;
 import org.geysermc.geyser.entity.vehicle.ClientVehicle;
 import org.geysermc.geyser.entity.vehicle.HappyGhastVehicleComponent;
 import org.geysermc.geyser.entity.vehicle.VehicleComponent;
 import org.geysermc.geyser.inventory.GeyserItemStack;
 import org.geysermc.geyser.item.type.Item;
+import org.geysermc.geyser.level.physics.Axis;
+import org.geysermc.geyser.level.physics.BoundingBox;
 import org.geysermc.geyser.session.GeyserSession;
 import org.geysermc.geyser.session.cache.tags.ItemTag;
 import org.geysermc.geyser.session.cache.tags.Tag;
@@ -55,7 +59,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.entity.player.Hand;
 import java.util.List;
 import java.util.UUID;
 
-public class HappyGhastEntity extends AnimalEntity implements ClientVehicle {
+public class HappyGhastEntity extends AnimalEntity implements ClientVehicle, Collidable {
 
     public static final float[] X_OFFSETS = {0.0F, -1.7F, 0.0F, 1.7F};
     public static final float[] Z_OFFSETS = {1.7F, 0.0F, -1.7F, 0.0F};
@@ -190,6 +194,26 @@ public class HappyGhastEntity extends AnimalEntity implements ClientVehicle {
         }
 
         return getFirstPassenger() instanceof SessionPlayerEntity;
+    }
+
+    @Override
+    public boolean canBeCollidedWith(Entity entity, BoundingBox boundingBox) {
+        if (!isBaby() && isAlive()) {
+            if (staysStill || (!passengers.isEmpty() && entity instanceof HappyGhastEntity)) {
+                return true;
+            }
+            if (entity instanceof PlayerEntity) {
+                double playerY = boundingBox.getMin(Axis.Y);
+                double ghastY = vehicleComponent.getBoundingBox().getMax(Axis.Y);
+                return playerY >= ghastY;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public BoundingBox getBoundingBox() {
+        return vehicleComponent.getBoundingBox();
     }
 
     private Entity getFirstPassenger() {
